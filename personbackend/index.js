@@ -8,7 +8,7 @@ const Person = require('./models/person')
 app.use(cors())
 app.use(express.json())
 
-morgan.token('body', (req, res) => {
+morgan.token('body', (req) => {
   if (req.method === 'POST') {
     return JSON.stringify(req.body || {})
   }
@@ -21,13 +21,13 @@ app.use(express.static('build'))
 
 
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (_, res) => {
   Person.find({}).then(persons => {
     res.json(persons)
   })
 })
 
-app.get('/info', (req, res, next) => {
+app.get('/info', (_, res, next) => {
   Person.find({}).then(persons => {
     res.send(
 
@@ -55,7 +55,7 @@ app.get('/api/persons/:id', (req, res, next) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
-    .then(result => {
+    .then(() => {
       res.status(204).end()
     })
     .catch(error => next(error))
@@ -89,14 +89,14 @@ app.put('/api/persons/:id', (req, res, next) => {
     .catch(error => next(error))
 })
 
-const unknowsEndPoint = (req, res) => {
+const unknowsEndPoint = (_, res) => {
   res.status(404).send({ error: 'unknown endpoint' })
 }
 // handler for nonexistent endpoints
 app.use(unknowsEndPoint)
 
 //middleware for error handling
-const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, _, res, next) => {
   console.error(error.message)
 
   if (error.name === 'CastError') {
